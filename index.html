@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quản lý hồ sơ da liễu</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6fa;color:#202b3c;font:16px -apple-system,BlinkMacSystemFont,sans-serif}header{background:#174c43;color:white;padding:22px 18px}header h1{font-size:23px;margin:0 0 7px}header p{margin:0;color:#d7eee7;font-size:14px}.wrap{max-width:760px;margin:auto;padding:16px}.warning{background:#fff2d9;border:1px solid #edce88;border-radius:10px;padding:12px;font-size:13px;line-height:1.5;margin-bottom:16px}.search{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;margin-bottom:14px}.panel{background:white;border:1px solid #e1e7ef;border-radius:13px;padding:16px;margin-bottom:15px;box-shadow:0 2px 7px #1725540a}h2{font-size:18px;margin:0 0 14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{font-size:13px;color:#475569;display:block;margin-bottom:5px}input,textarea,select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:8px;font:16px inherit;background:white;margin-bottom:10px}textarea{min-height:75px}button{border:0;border-radius:9px;padding:12px 15px;font-size:15px;font-weight:600;background:#176b58;color:white;cursor:pointer}.secondary{background:#e7f1ee;color:#175648}.patient{border-top:1px solid #e5eaf0;padding:13px 0}.patient strong{display:block;margin-bottom:4px}.muted{font-size:13px;color:#64748b}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.empty{color:#64748b;text-align:center;padding:18px 0}.demo{font-size:12px;color:#9a3412;margin-top:8px}@media(max-width:480px){.grid{grid-template-columns:1fr}.wrap{padding:12px}}
+</style>
+</head>
+<body>
+<header><h1>Hồ sơ bệnh nhân</h1><p>Da liễu thẩm mỹ · Bản giao diện thử nghiệm</p></header>
+<main class="wrap">
+<div class="warning"><strong>CHỈ DÙNG DỮ LIỆU GIẢ.</strong> Bản mẫu này chưa có đăng nhập, mã hóa hoặc lưu trữ an toàn. Không nhập tên thật, số điện thoại, bệnh án hay ảnh bệnh nhân.</div>
+<input class="search" id="search" placeholder="Tìm theo mã hoặc tên hồ sơ mẫu..." oninput="render()">
+<section class="panel"><h2>Thêm hồ sơ mẫu</h2>
+<div class="grid"><div><label>Mã hồ sơ giả</label><input id="code" placeholder="VD: DEMO001"></div><div><label>Tên hiển thị giả</label><input id="name" placeholder="VD: Bệnh nhân mẫu A"></div></div>
+<label>Vấn đề da</label><input id="problem" placeholder="VD: Mụn trứng cá (dữ liệu giả)">
+<label>Điều trị / ghi chú</label><textarea id="notes" placeholder="Chỉ nhập thông tin minh họa"></textarea>
+<button onclick="add()">Thêm hồ sơ mẫu</button><div class="demo">Dữ liệu chỉ tồn tại trong phiên trang này; tải lại có thể mất.</div></section>
+<section class="panel"><h2>Danh sách hồ sơ</h2><div id="list" class="empty">Chưa có hồ sơ mẫu.</div></section>
+</main>
+<script>
+let patients=[];
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function add(){let code=document.getElementById('code').value.trim(),name=document.getElementById('name').value.trim();if(!code||!name){alert('Hãy nhập mã và tên giả để thử nghiệm.');return}if(patients.some(p=>p.code.toLowerCase()===code.toLowerCase())){alert('Mã hồ sơ mẫu đã tồn tại.');return}patients.unshift({code,name,problem:document.getElementById('problem').value.trim(),notes:document.getElementById('notes').value.trim()});['code','name','problem','notes'].forEach(id=>document.getElementById(id).value='');render()}
+function removePatient(code){if(confirm('Xóa hồ sơ mẫu này?')){patients=patients.filter(p=>p.code!==code);render()}}
+function render(){let q=document.getElementById('search').value.toLowerCase(),items=patients.filter(p=>(p.code+' '+p.name+' '+p.problem).toLowerCase().includes(q));let el=document.getElementById('list');if(!items.length){el.className='empty';el.textContent=patients.length?'Không tìm thấy hồ sơ phù hợp.':'Chưa có hồ sơ mẫu.';return}el.className='';el.innerHTML=items.map(p=>'<div class="patient"><strong>'+esc(p.name)+' · '+esc(p.code)+'</strong><div class="muted">Vấn đề da: '+esc(p.problem||'Chưa nhập')+'</div><p>'+esc(p.notes||'Chưa có ghi chú')+'</p><button class="secondary" onclick="removePatient('+JSON.stringify(p.code).replace(/</g,'\\u003c')+')">Xóa hồ sơ mẫu</button></div>').join('')}
+</script>
+</body>
+</html>
